@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: GCmeKaw3XSfztpIkEEpSeK7sGFHQCnhwq+VnD45Ucms1wXF0SjhxeC9nd8hkWm4YyUvaBCwquVtDyZjx/NQ5ckzBBFAUp/55U6j51lobohnZkZu0n+LOWfk/mobWb4nE47lI6bKYADIh4YoQU/fPMFAGXxbBnMPjJ8pRSCed4QqMkxDRZJXS/h8RRbOPgsNrnCqho/uYoQdzDTZteTA+r/0EsfQe4RVSxnhVUg3tYpry6nJk2N0/G5ywon2+3Gjo9F8yUrBBoSB92PNiG6Dvd6DpMAlDH72wOqKnok2jGkI/KxMLXkiG/aD/UDpa15lHA5BdwYHptKUtpB978mmrxlNogCC2ZCfA/MBS4JQq2eOle1eQ1qsavzo7bSVLrgm9ygJnUboUilbkX90iGab/xRA5I6cZfXr1ylSsEfbG1EUwmQEyweJbOk5uSThKM3N3j0C+9Lk6nAO9nhEafKBcHGvJ7nBv4c1p+PRQ91800oubznUvXZwTMvOQRCt7LV0rBrbS7tGG8S9AlLel0GI5HHLTVcDA6ZkDjqxMQtGS8WQzFGlQ78ly8qU3rBUqscaA7cWeCIuocNIqCNXwOpUnS7riGy0T55guSTee5C/vSSxRYijoMKS1TiqHmGRCdq6dYcVcLU6s+Ka+pKif/TyNUEE47jU7DosSvLcvwQG+16A=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Memoirs-of-the-Court-of-Louis-XIV.-and-of-the-Regency---Volume-01_3855
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
